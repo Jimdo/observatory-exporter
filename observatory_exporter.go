@@ -63,6 +63,8 @@ func main() {
 		log.Fatalf("No target url set.")
 	}
 
+	mux := http.NewServeMux()
+
 	cached := Metrics{}
 	collector := NewCollector(*targetURL, *apiURL)
 
@@ -95,8 +97,8 @@ func main() {
 		}
 	}()
 
-	http.Handle("/metrics", prometheus.Handler())
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("/metrics", prometheus.Handler())
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
              <head><title>Observatory Exporter</title></head>
              <body>
@@ -105,5 +107,5 @@ func main() {
              </body>
              </html>`))
 	})
-	http.ListenAndServe(*listenAddr, nil)
+	http.ListenAndServe(*listenAddr, mux)
 }
