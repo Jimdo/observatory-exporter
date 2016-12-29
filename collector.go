@@ -172,9 +172,10 @@ func (c *Collector) getCertificate(certid int64) (*certificate.Certificate, erro
 
 func exportMetrics(scan *database.Scan, cert *certificate.Certificate) (res Metrics) {
 	res = Metrics{
-		"tls_enabled": boolToFloat(scan.Has_tls),
-		"is_valid":    boolToFloat(scan.Is_valid),
-		"expiry_date": float64(cert.Validity.NotAfter.Unix()),
+		"tls_enabled":      boolToFloat(scan.Has_tls),
+		"is_valid":         boolToFloat(scan.Is_valid),
+		"cert_expiry_date": float64(cert.Validity.NotAfter.Unix()),
+		"cert_start_date":  float64(cert.Validity.NotBefore.Unix()),
 	}
 
 	for _, a := range scan.AnalysisResults {

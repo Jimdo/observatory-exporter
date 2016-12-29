@@ -30,6 +30,7 @@ func NewExporter(targetURL string, fetch func() *Metrics) *Exporter {
 			"score":            prometheus.NewDesc(prometheus.BuildFQName(namespace, "", "score"), "Defines the score given by Mozilla Observatory's mozillaGradingWorker (0...100)", nil, targetLabel),
 			"grade":            prometheus.NewDesc(prometheus.BuildFQName(namespace, "", "grade"), "Grade representation of score, A=4, B=3, C=2, D=1, F=0", nil, targetLabel),
 			"cert_expiry_date": prometheus.NewDesc(prometheus.BuildFQName(namespace, "", "cert_expiry_date"), "Expiry date for certificate.", nil, targetLabel),
+			"cert_start_date":  prometheus.NewDesc(prometheus.BuildFQName(namespace, "", "cert_start_date"), "Start date for certificate.", nil, targetLabel),
 		},
 	}
 	return &e
