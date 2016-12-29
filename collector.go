@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,10 +18,6 @@ import (
 type Scan struct {
 	ID int64 `json:"scan_id"`
 }
-
-// todo:
-// ScanScore
-// PassedTests
 
 type MozillaEvalData struct {
 	Level string `json:"level"`
@@ -111,7 +106,10 @@ func (c *Collector) getResult(scanid int64) (*database.Scan, error) {
 
 	apiURL := fmt.Sprintf("%s/results?id=%d", c.ApiURL, scanid)
 
-	// todo: apply timeout
+	// Try to get the result from observatory for n seconds until
+	// we call this a failed attempt.
+	endtime := time.Now().Add(time.Second * 120)
+
 	for {
 		resp, err := c.client.Get(apiURL)
 		if err != nil {
@@ -132,8 +130,12 @@ func (c *Collector) getResult(scanid int64) (*database.Scan, error) {
 		}
 
 		if res.Complperc < 100 {
-			time.Sleep(time.Second * 5)
-			log.Print("no full result yet...")
+			if time.Now().After(endtime) {
+				return nil, fmt.Errorf("Failed to retrieve results in time for %s", c.TargetURL)
+			}
+
+			fmt.Print(".")
+			time.Sleep(time.Second * 1)
 			continue
 		}
 

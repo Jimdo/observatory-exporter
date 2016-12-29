@@ -73,14 +73,22 @@ func main() {
 		timer := time.NewTimer(time.Second * time.Duration(*interval))
 
 		for {
+			// We always try to rescan 'targetURL' and limit 'interval' to the
+			// limits from Observatory
+			// (see https://github.com/mozilla/tls-observatory#post-/api/v1/scan)
+			// In case we still hit the limit (restart, someone else checking the
+			// target) we will initiate a scrape without a rescan to get valid data.
 			var err error
-			cached, err = collector.Scrape(false)
+			cached, err = collector.Scrape(true)
 
-			if err != nil {
-				// do something!! but dont die please
-				log.Printf("Failed to get result for %s: %s", *targetURL, err)
-			} else {
+			if err != nil && err.Error() == http.StatusText(http.StatusTooManyRequests) {
+				cached, err = collector.Scrape(false)
+			}
+
+			if err == nil {
 				log.Printf("Updated result for %s", *targetURL)
+			} else {
+				log.Printf("Failed to get result for %s: %s", *targetURL, err)
 			}
 
 			<-timer.C
