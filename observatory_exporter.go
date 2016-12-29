@@ -14,12 +14,6 @@ import (
 	"github.com/prometheus/common/version"
 )
 
-// todo:
-// other logger??
-// yml config + CLA support...
-
-// https://github.com/mozilla/tls-observatory
-
 type Metrics map[string]float64
 
 func registerSignals() {

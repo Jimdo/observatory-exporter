@@ -43,7 +43,7 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
-	e.mutex.Lock() // To protect metrics from concurrent collects.
+	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
 	log.Printf("Exporting result for %s", e.targetURL)
