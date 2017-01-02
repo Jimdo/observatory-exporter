@@ -56,3 +56,55 @@ func TestGetCertificate(t *testing.T) {
 		t.Fatal("certificate outdated")
 	}
 }
+
+// func readGauge(m prometheus.Metric) float64 {
+// 	pb := &dto.Metric{}
+// 	m.Write(pb)
+// 	return pb.GetGauge().GetValue()
+// }
+
+// func TestMetricsExport(t *testing.T) {
+// 	targetURL := "dummy-url.com"
+// 	cached := Metrics{}
+// 	e := NewExporter(targetURL, func() *Metrics { return &cached })
+
+// 	tomorrow := float64(time.Now().Unix()) + (time.Hour * 24).Seconds()
+// 	yesterday := float64(time.Now().Unix()) - (time.Hour * 24).Seconds()
+
+// 	cached["tls_enabled"] = 1
+// 	cached["ssl_level"] = 1
+// 	cached["score"] = 85
+// 	cached["grade"] = 3
+// 	cached["cert_is_trusted"] = 0
+// 	cached["cert_expiry_date"] = tomorrow
+// 	cached["cert_start_date"] = yesterday
+
+// 	ch := make(chan prometheus.Metric)
+// 	go func() {
+// 		defer close(ch)
+// 		e.Collect(ch)
+// 	}()
+
+// 	// ordering is important here - has to match exporter dict.
+// 	if expect, got := cached["tls_enabled"], readGauge(<-ch); expect != got {
+// 		t.Errorf("tls_enabled: expected %f, got %f", expect, got)
+// 	}
+// 	if expect, got := cached["ssl_level"], readGauge(<-ch); expect != got {
+// 		t.Errorf("ssl_level: expected %f, got %f", expect, got)
+// 	}
+// 	if expect, got := cached["score"], readGauge(<-ch); expect != got {
+// 		t.Errorf("score: expected %f, got %f", expect, got)
+// 	}
+// 	if expect, got := cached["grade"], readGauge(<-ch); expect != got {
+// 		t.Errorf("grade: expected %f, got %f", expect, got)
+// 	}
+// 	if expect, got := cached["cert_is_trusted"], readGauge(<-ch); expect != got {
+// 		t.Errorf("cert_is_trusted: expected %f, got %f", expect, got)
+// 	}
+// 	if expect, got := cached["cert_expiry_date"], readGauge(<-ch); expect != got {
+// 		t.Errorf("cert_expiry_date: expected %f, got %f", expect, got)
+// 	}
+// 	if expect, got := cached["cert_start_date"], readGauge(<-ch); expect != got {
+// 		t.Errorf("cert_start_date: expected %f, got %f", expect, got)
+// 	}
+// }
