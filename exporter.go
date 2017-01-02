@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"sort"
 	"sync"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -49,7 +50,15 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	log.Printf("Exporting result for %s", e.targetURL)
 
 	data := e.fetch()
-	for key, val := range *data {
-		ch <- prometheus.MustNewConstMetric(e.metrics[key], prometheus.GaugeValue, val)
+
+	keys := []string{}
+	for k := range *data {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		ch <- prometheus.MustNewConstMetric(e.metrics[key], prometheus.GaugeValue, (*data)[key])
 	}
 }
