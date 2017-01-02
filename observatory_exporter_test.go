@@ -60,6 +60,32 @@ func TestGetCertificate(t *testing.T) {
 	}
 }
 
+func TestScrape(t *testing.T) {
+	c := NewCollector("ulfr.io", DefaultApiURL)
+
+	metrics, err := c.Scrape(false)
+
+	if err != nil {
+		t.Fatalf("Scrape returned an error: %s", err)
+	}
+
+	expected := []string{
+		"tls_enabled",
+		"cert_is_trusted",
+		"cert_expiry_date",
+		"cert_start_date",
+		"ssl_level",
+		"score",
+		"grade",
+	}
+
+	for _, k := range expected {
+		if _, ok := metrics[k]; !ok {
+			t.Fatalf("Missing metrics %s", k)
+		}
+	}
+}
+
 func readGauge(m prometheus.Metric) float64 {
 	pb := &dto.Metric{}
 	m.Write(pb)
