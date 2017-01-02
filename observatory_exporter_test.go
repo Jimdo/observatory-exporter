@@ -57,6 +57,7 @@ func TestGetCertificate(t *testing.T) {
 	}
 }
 
+// its a test
 // func readGauge(m prometheus.Metric) float64 {
 // 	pb := &dto.Metric{}
 // 	m.Write(pb)
