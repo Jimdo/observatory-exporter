@@ -29,18 +29,15 @@ type MozillaGradeData struct {
 }
 
 type Collector struct {
-	ApiURL    string
-	TargetURL string
-	client    *http.Client
-	mu        sync.Mutex
+	ApiURL string
+	client *http.Client
+	mu     sync.Mutex
 }
 
-func NewCollector(targetURL string, apiURL string) *Collector {
+func NewCollector(apiURL string) *Collector {
 	c := &Collector{}
 
 	c.ApiURL = strings.TrimSuffix(apiURL, "/")
-	c.TargetURL = strings.TrimPrefix(targetURL, "https://")
-	c.TargetURL = strings.TrimPrefix(targetURL, "http://")
 
 	c.client = &http.Client{
 		Timeout: time.Second * 10,
@@ -49,18 +46,18 @@ func NewCollector(targetURL string, apiURL string) *Collector {
 	return c
 }
 
-func (c *Collector) Scrape(enforceRescan bool) (Metrics, error) {
-	scanID, err := c.requestScan(enforceRescan)
+func (c *Collector) Scrape(targetURL string, enforceRescan bool) (Metrics, error) {
+	scanID, err := c.requestScan(targetURL, enforceRescan)
 	if err != nil {
 		return nil, err
 	}
 
-	scan, err := c.getResult(scanID)
+	scan, err := c.getResult(targetURL, scanID)
 	if err != nil {
 		return nil, err
 	}
 
-	cert, err := c.getCertificate(scan.Cert_id)
+	cert, err := c.getCertificate(targetURL, scan.Cert_id)
 	if err != nil {
 		return nil, err
 	}
@@ -69,11 +66,11 @@ func (c *Collector) Scrape(enforceRescan bool) (Metrics, error) {
 	return metrics, nil
 }
 
-func (c *Collector) requestScan(enforceRescan bool) (int64, error) {
+func (c *Collector) requestScan(targetURL string, enforceRescan bool) (int64, error) {
 	apiURL := c.ApiURL + "/scan"
 
 	prms := url.Values{}
-	prms.Add("target", c.TargetURL)
+	prms.Add("target", targetURL)
 	if enforceRescan {
 		prms.Add("rescan", "true")
 	}
@@ -101,7 +98,7 @@ func (c *Collector) requestScan(enforceRescan bool) (int64, error) {
 	return scan.ID, err
 }
 
-func (c *Collector) getResult(scanid int64) (*database.Scan, error) {
+func (c *Collector) getResult(targetURL string, scanid int64) (*database.Scan, error) {
 	var res database.Scan
 
 	apiURL := fmt.Sprintf("%s/results?id=%d", c.ApiURL, scanid)
@@ -131,7 +128,7 @@ func (c *Collector) getResult(scanid int64) (*database.Scan, error) {
 
 		if res.Complperc < 100 {
 			if time.Now().After(endtime) {
-				return nil, fmt.Errorf("Failed to retrieve results in time for %s", c.TargetURL)
+				return nil, fmt.Errorf("Failed to retrieve results in time for %s", targetURL)
 			}
 
 			fmt.Print(".")
@@ -145,7 +142,7 @@ func (c *Collector) getResult(scanid int64) (*database.Scan, error) {
 	return &res, nil
 }
 
-func (c *Collector) getCertificate(certid int64) (*certificate.Certificate, error) {
+func (c *Collector) getCertificate(targetURL string, certid int64) (*certificate.Certificate, error) {
 	apiURL := fmt.Sprintf("%s/certificate?id=%d", c.ApiURL, certid)
 
 	resp, err := c.client.Get(apiURL)
@@ -155,7 +152,7 @@ func (c *Collector) getCertificate(certid int64) (*certificate.Certificate, erro
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Failed to access certificate. HTTP %d", resp.StatusCode)
+		return nil, fmt.Errorf("Failed to access certificate. HTTP %d: %s", resp.StatusCode, targetURL)
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
