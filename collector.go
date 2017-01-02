@@ -207,10 +207,11 @@ func exportMetrics(scan *database.Scan, cert *certificate.Certificate) (res Metr
 
 func levelToInt(str string) float64 {
 	mapping := map[string]float64{
-		"bad":          0,
-		"old":          1,
-		"intermediate": 2,
-		"modern":       3,
+		"bad":           0,
+		"non compliant": 1,
+		"old":           2,
+		"intermediate":  3,
+		"modern":        4,
 	}
 
 	str = strings.ToLower(str)
