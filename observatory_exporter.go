@@ -47,7 +47,7 @@ func main() {
 	)
 
 	var targetURLs arrayArgs
-	flag.Var(&targetURLs, "observatory.target-url", "The URL checked via Observatory")
+	flag.Var(&targetURLs, "observatory.target-url", "The URLs checked via Observatory. The argument can be used multiple times for different URLs to target.")
 
 	registerSignals()
 
