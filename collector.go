@@ -187,7 +187,7 @@ func exportMetrics(scan *database.Scan, cert *certificate.Certificate) (res Metr
 					log.Printf("Failed to unmarshal analyzer 'mozillaEvaluationWorker': %s", err)
 					continue
 				}
-				res["ssl_level"] = levelToInt(d.Level)
+				res["compatibility_level"] = levelToInt(d.Level)
 
 			case "mozillaGradingWorker":
 				var d MozillaGradeData

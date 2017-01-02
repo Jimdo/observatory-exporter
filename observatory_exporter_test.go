@@ -22,7 +22,7 @@ func TestScrape(t *testing.T) {
 		"cert_is_trusted",
 		"cert_expiry_date",
 		"cert_start_date",
-		"ssl_level",
+		"compatibility_level",
 		"score",
 		"grade",
 	}
@@ -53,9 +53,9 @@ func TestMetricsExport(t *testing.T) {
 	metrics["cert_expiry_date"] = tomorrow
 	metrics["cert_is_trusted"] = 0
 	metrics["cert_start_date"] = yesterday
+	metrics["compatibility_level"] = 1
 	metrics["grade"] = 3
 	metrics["score"] = 85
-	metrics["ssl_level"] = 1
 	metrics["tls_enabled"] = 1
 
 	cache.Write(targetURL, metrics)
@@ -75,14 +75,14 @@ func TestMetricsExport(t *testing.T) {
 	if expect, got := metrics["cert_start_date"], readGauge(<-ch); expect != got {
 		t.Errorf("cert_start_date: expected %f, got %f", expect, got)
 	}
+	if expect, got := metrics["compatibility_level"], readGauge(<-ch); expect != got {
+		t.Errorf("compatibility_level: expected %f, got %f", expect, got)
+	}
 	if expect, got := metrics["grade"], readGauge(<-ch); expect != got {
 		t.Errorf("grade: expected %f, got %f", expect, got)
 	}
 	if expect, got := metrics["score"], readGauge(<-ch); expect != got {
 		t.Errorf("score: expected %f, got %f", expect, got)
-	}
-	if expect, got := metrics["ssl_level"], readGauge(<-ch); expect != got {
-		t.Errorf("ssl_level: expected %f, got %f", expect, got)
 	}
 	if expect, got := metrics["tls_enabled"], readGauge(<-ch); expect != got {
 		t.Errorf("tls_enabled: expected %f, got %f", expect, got)
