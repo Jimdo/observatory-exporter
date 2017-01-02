@@ -56,5 +56,4 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(e.metrics[key], prometheus.GaugeValue, metrics[key], targetURL)
 		}
 	}
-
 }
