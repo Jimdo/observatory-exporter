@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"log"
+
 	"github.com/mozilla/tls-observatory/certificate"
 	"github.com/mozilla/tls-observatory/database"
 )
@@ -24,8 +26,8 @@ type MozillaEvalData struct {
 }
 
 type MozillaGradeData struct {
-	Score       int64  `json:"grade"`
-	LetterGrade string `json:"lettergrade"`
+	Score       float64 `json:"grade"`
+	LetterGrade string  `json:"lettergrade"`
 }
 
 type Collector struct {
@@ -180,17 +182,22 @@ func exportMetrics(scan *database.Scan, cert *certificate.Certificate) (res Metr
 			switch a.Analyzer {
 			case "mozillaEvaluationWorker":
 				var d MozillaEvalData
-				if err := json.Unmarshal(a.Result, &d); err == nil {
-					res["ssl_level"] = levelToInt(d.Level)
+				err := json.Unmarshal(a.Result, &d)
+				if err != nil {
+					log.Printf("Failed to unmarshal analyzer 'mozillaEvaluationWorker': %s", err)
+					continue
 				}
+				res["ssl_level"] = levelToInt(d.Level)
+
 			case "mozillaGradingWorker":
 				var d MozillaGradeData
-				if err := json.Unmarshal(a.Result, &d); err == nil {
-					res["score"] = float64(d.Score)
-					res["grade"] = gradeLetterToInt(d.LetterGrade)
+				err := json.Unmarshal(a.Result, &d)
+				if err != nil {
+					log.Printf("Failed to unmarshal analyzer 'mozillaGradingWorker': %s", err)
+					continue
 				}
-			default:
-				continue
+				res["score"] = float64(d.Score)
+				res["grade"] = gradeLetterToInt(d.LetterGrade)
 			}
 		}
 	}
