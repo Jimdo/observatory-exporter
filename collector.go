@@ -17,15 +17,15 @@ import (
 	"github.com/mozilla/tls-observatory/database"
 )
 
-type Scan struct {
+type scan struct {
 	ID int64 `json:"scan_id"`
 }
 
-type MozillaEvalData struct {
+type mozillaEvalData struct {
 	Level string `json:"level"`
 }
 
-type MozillaGradeData struct {
+type mozillaGradeData struct {
 	Score       float64 `json:"grade"`
 	LetterGrade string  `json:"lettergrade"`
 }
@@ -90,7 +90,7 @@ func (c *Collector) requestScan(targetURL string, enforceRescan bool) (int64, er
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
-	var scan Scan
+	var scan scan
 	err = json.Unmarshal(buf, &scan)
 
 	if err != nil {
@@ -181,7 +181,7 @@ func exportMetrics(scan *database.Scan, cert *certificate.Certificate) (res Metr
 		if a.Success {
 			switch a.Analyzer {
 			case "mozillaEvaluationWorker":
-				var d MozillaEvalData
+				var d mozillaEvalData
 				err := json.Unmarshal(a.Result, &d)
 				if err != nil {
 					log.Printf("Failed to unmarshal analyzer 'mozillaEvaluationWorker': %s", err)
@@ -190,7 +190,7 @@ func exportMetrics(scan *database.Scan, cert *certificate.Certificate) (res Metr
 				res["compatibility_level"] = levelToInt(d.Level)
 
 			case "mozillaGradingWorker":
-				var d MozillaGradeData
+				var d mozillaGradeData
 				err := json.Unmarshal(a.Result, &d)
 				if err != nil {
 					log.Printf("Failed to unmarshal analyzer 'mozillaGradingWorker': %s", err)
