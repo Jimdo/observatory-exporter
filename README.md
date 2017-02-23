@@ -20,7 +20,7 @@ You can deploy this exporter using the [jimdo/observatory-exporter](https://hub.
 Example
 ```
 docker pull jimdo/observatory-exporter
-docker run -p 9229:9229 observatory-exporter:latest --observatory.target-url google.de
+docker run -p 9229:9229 jimdo/observatory-exporter --observatory.target-url google.de
 ```
 
 ## Exposed metrics
