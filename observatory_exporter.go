@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/version"
+	log "github.com/sirupsen/logrus"
 )
 
 type Metrics map[string]float64
@@ -44,6 +44,7 @@ func main() {
 		showVersion = flag.Bool("version", false, "Print version information")
 		apiURL      = flag.String("observatory.api-url", DefaultApiURL, "The Observatory API endpoint used.")
 		interval    = flag.Int("observatory.interval", 60*60, "Interval used for running checks against the Observatory API")
+		logLevel    = flag.String("log-level", "info", "Minimum log level")
 	)
 
 	var targetURLs arrayArgs
@@ -52,6 +53,14 @@ func main() {
 	registerSignals()
 
 	flag.Parse()
+
+	lvl, err := log.ParseLevel(logLevel)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Invalid log level: %s", logLevel)
+		os.Exit(1)
+	}
+	log.SetLevel(lvl)
+	log.SetFormatter(&log.JSONFormatter{})
 
 	if *showVersion {
 		fmt.Fprintln(os.Stdout, version.Print("observatory_exporter"))
