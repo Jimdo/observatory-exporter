@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/mozilla/tls-observatory/certificate"
 	"github.com/mozilla/tls-observatory/database"
@@ -128,6 +128,11 @@ func (c *Collector) getResult(targetURL string, scanid int64) (*database.Scan, e
 			return &res, err
 		}
 
+		log.WithFields(log.Fields{
+			"target_url":              targetURL,
+			"completion_percentage":   res.Complperc,
+			"remaining_retry_seconds": endtime.Sub(time.Now()).Seconds(),
+		}).Debug("getResult")
 		if res.Complperc < 100 {
 			if time.Now().After(endtime) {
 				return nil, fmt.Errorf("Failed to retrieve results in time for %s", targetURL)
