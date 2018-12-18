@@ -3,13 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "h+whaBdd2wWZvvoxINMqX8ieIMM=",
-			"origin": "github.com/mozilla/tls-observatory/vendor/github.com/Sirupsen/logrus",
-			"path": "github.com/Sirupsen/logrus",
-			"revision": "169b7da23694ec4a3fd032cfa729ee5d4a4c6d7e",
-			"revisionTime": "2018-12-17T18:46:26Z"
-		},
-		{
 			"checksumSHA1": "HRtNBxHpd4X0AV0JSYW2MkpYbJE=",
 			"origin": "github.com/mozilla/tls-observatory/vendor/github.com/aws/aws-sdk-go/aws",
 			"path": "github.com/aws/aws-sdk-go/aws",
@@ -367,23 +360,28 @@
 			"revisionTime": "2017-06-07T19:36:46Z"
 		},
 		{
-			"checksumSHA1": "BGm8lKZmvJbf/YOJLeL1rw2WVjA=",
+			"checksumSHA1": "Rq+zqkFV0wJgi0MARcgx0QT+9lE=",
+			"path": "github.com/sirupsen/logrus",
+			"revision": "2067ea4241cec716fbd0ac90f42f339f963bff92",
+			"revisionTime": "2018-12-15T15:21:19Z"
+		},
+		{
+			"checksumSHA1": "BSPDVKviqHQaG2phOFN690zAKB8=",
 			"path": "golang.org/x/crypto/ssh/terminal",
-			"revision": "1a580b3eff7814fc9b40602fd35256c63b50f491",
-			"revisionTime": "2018-05-14T23:55:10Z"
+			"revision": "505ab145d0a99da450461ae2c1a9f6cd10d1f447",
+			"revisionTime": "2018-09-26T22:07:39Z"
 		},
 		{
-			"checksumSHA1": "xQlAjzId3b7QeM1moesby1OUSxI=",
-			"origin": "github.com/mozilla/tls-observatory/vendor/golang.org/x/sys/unix",
+			"checksumSHA1": "A70JgGLKFke+YGfveo5hGstN7zQ=",
 			"path": "golang.org/x/sys/unix",
-			"revision": "169b7da23694ec4a3fd032cfa729ee5d4a4c6d7e",
-			"revisionTime": "2018-12-17T18:46:26Z"
+			"revision": "dcdaa6325bcb8d3c07805583fe12153f08a41e2b",
+			"revisionTime": "2018-12-17T22:01:34Z"
 		},
 		{
-			"checksumSHA1": "apLcjhTfa/nKhpXTXjpfIZxVTKQ=",
+			"checksumSHA1": "Y7nctMxT58lRM78VtElPerhcnEs=",
 			"path": "golang.org/x/sys/windows",
-			"revision": "3b58ed4ad3395d483fc92d5d14123ce2c3581fec",
-			"revisionTime": "2018-08-21T08:45:23Z"
+			"revision": "dcdaa6325bcb8d3c07805583fe12153f08a41e2b",
+			"revisionTime": "2018-12-17T22:01:34Z"
 		}
 	],
 	"rootPath": "github.com/Jimdo/observatory-exporter"
