@@ -74,35 +74,42 @@ func main() {
 	prometheus.MustRegister(exporter)
 
 	go func() {
+		scrape := func() {
+			for _, targetURL := range targetURLs {
+				go func(targetURL string) {
+					// We always try to rescan 'targetURL' and limit 'interval' to the
+					// limits from Observatory
+					// (see https://github.com/mozilla/tls-observatory#post-/api/v1/scan)
+					// In case we still hit the limit (restart, someone else checking the
+					// target) we will initiate a scrape without a rescan to get valid data.
+					var err error
+					var result Metrics
+
+					result, err = collector.Scrape(targetURL, true)
+
+					if err != nil && err.Error() == http.StatusText(http.StatusTooManyRequests) {
+						result, err = collector.Scrape(targetURL, false)
+					}
+
+					if err == nil {
+						cache.Write(targetURL, result)
+						log.Printf("Updated result for %s", targetURL)
+					} else {
+						log.Printf("Failed to get result for %s: %s", targetURL, err)
+					}
+				}(targetURL)
+			}
+		}
+
 		ticker := time.NewTicker(time.Second * time.Duration(*interval))
+
+		// inital scrape, so we get data right on startup
+		scrape()
 
 		for {
 			select {
 			case <-ticker.C:
-				for _, targetURL := range targetURLs {
-					go func(targetURL string) {
-						// We always try to rescan 'targetURL' and limit 'interval' to the
-						// limits from Observatory
-						// (see https://github.com/mozilla/tls-observatory#post-/api/v1/scan)
-						// In case we still hit the limit (restart, someone else checking the
-						// target) we will initiate a scrape without a rescan to get valid data.
-						var err error
-						var result Metrics
-
-						result, err = collector.Scrape(targetURL, true)
-
-						if err != nil && err.Error() == http.StatusText(http.StatusTooManyRequests) {
-							result, err = collector.Scrape(targetURL, false)
-						}
-
-						if err == nil {
-							cache.Write(targetURL, result)
-							log.Printf("Updated result for %s", targetURL)
-						} else {
-							log.Printf("Failed to get result for %s: %s", targetURL, err)
-						}
-					}(targetURL)
-				}
+				scrape()
 			}
 		}
 	}()
