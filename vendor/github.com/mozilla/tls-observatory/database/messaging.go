@@ -2,11 +2,12 @@ package database
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 
 	"github.com/mozilla/tls-observatory/logger"
 )
@@ -29,12 +30,12 @@ func (db *DB) RegisterScanListener(dbname, user, password, hostport, sslmode str
 	listenerChan := make(chan int64)
 	listenerName := "scan_listener"
 
-	connInfo := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
-		user, password, hostport, dbname, sslmode)
-
+	userPass := url.UserPassword(user, password)
+	url := fmt.Sprintf("postgres://%s@%s/%s?sslmode=%s",
+		userPass.String(), hostport, dbname, sslmode)
 	go func() {
 
-		listener := pq.NewListener(connInfo, 100*time.Millisecond, 10*time.Second, reportProblem)
+		listener := pq.NewListener(url, 100*time.Millisecond, 10*time.Second, reportProblem)
 		err := listener.Listen(listenerName)
 
 		if err != nil {
