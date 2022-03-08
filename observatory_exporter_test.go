@@ -11,7 +11,7 @@ import (
 func TestScrape(t *testing.T) {
 	c := NewCollector(DefaultApiURL)
 
-	metrics, err := c.Scrape("ulfr.io", false)
+	metrics, err := c.Scrape("google.com", false)
 
 	if err != nil {
 		t.Fatalf("Scrape returned an error: %s", err)
