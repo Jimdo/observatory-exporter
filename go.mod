@@ -1,6 +1,6 @@
 module github.com/Jimdo/observatory-exporter
 
-go 1.13
+go 1.19
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
@@ -22,7 +22,7 @@ require (
 	github.com/prometheus/procfs v0.0.8
 	github.com/sirupsen/logrus v1.4.2
 	github.com/valyala/fasttemplate v1.1.0
-	golang.org/x/sys v0.0.0-20191218084908-4a24b4065292
+	golang.org/x/sys v0.2.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/fsnotify/fsnotify.v1 v1.4.7
