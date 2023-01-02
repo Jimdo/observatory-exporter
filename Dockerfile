@@ -1,7 +1,7 @@
-FROM golang:alpine
+FROM golang:latest
 
-ADD . /go/src/github.com/Jimdo/observatory-exporter
-WORKDIR /go/src/github.com/Jimdo/observatory-exporter
+ADD . /go/src/github.com/staffbase/observatory-exporter
+WORKDIR /go/src/github.com/staffbase/observatory-exporter
 
 RUN go install -v ./...
 

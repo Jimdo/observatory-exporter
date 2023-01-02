@@ -1,25 +1,32 @@
-name: CI
-
-on: pull_request
-
+name: ci
+on:
+  push:
+    branches: ["**"]
 jobs:
   test:
     name: Format, Build & Test
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.13
-        uses: actions/setup-go@v2
+      - name: Set up Go 1.19
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.13
-
+          go-version: 1.19
       - name: Checkout code
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v3
       - name: Format
         run: make format
-
       - name: Build
         run: make build
-
       - name: Test
         run: make test
+  continuous-delivery:
+    needs:
+      - test
+    uses: Staffbase/gha-workflows/.github/workflows/template_gitops.yml@v1.8.0
+    with:
+      gitops-stage: |-
+        kubernetes/namespaces/observatory-exporter/base/observatory-exporter-deploy.yaml spec.template.spec.containers[0].image  
+    secrets:
+      gitops-token: ${{ secrets.GITOPS_TOKEN }}
+      docker-username: ${{ secrets.DOCKER_USERNAME }}
+      docker-password: ${{ secrets.DOCKER_PASSWORD }}
