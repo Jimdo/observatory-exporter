@@ -30,4 +30,3 @@ jobs:
       gitops-token: ${{ secrets.GITOPS_TOKEN }}
       docker-username: ${{ secrets.DOCKER_USERNAME }}
       docker-password: ${{ secrets.DOCKER_PASSWORD }}
- 
