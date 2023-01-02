@@ -1,4 +1,4 @@
-module github.com/Jimdo/observatory-exporter
+module github.com/staffbase/observatory-exporter
 
 go 1.19
 
