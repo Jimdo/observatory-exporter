@@ -1,25 +1,22 @@
-name: CI
-
-on: pull_request
-
+name: Observatory-exporter workflow
+on: [push] # When pushing to any branch then run this action
+# Env variable
+env:
+  DOCKER_USER: ${{secrets.DOCKER_USER}}
+  DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+  REPO_NAME: ${{secrets.REPO_NAME}}
 jobs:
-  test:
-    name: Format, Build & Test
-    runs-on: ubuntu-latest
+  push-image-to-docker-hub:  # job name
+    runs-on: ubuntu-latest  # runner name : (ubuntu latest version) 
     steps:
-      - name: Set up Go 1.13
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.13
-
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Format
-        run: make format
-
-      - name: Build
-        run: make build
-
-      - name: Test
-        run: make test
+    - uses: actions/checkout@v2 # first action : checkout source code
+    - name: docker login
+      run: | # log into docker hub account
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD  
+    - name: Get current date # get the date of the build
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
+    - name: Build the Docker image # push The image to the docker hub
+      run: docker build . --file Dockerfile --tag $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
+    - name: Docker Push
+      run: docker push $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}

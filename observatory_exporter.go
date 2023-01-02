@@ -64,7 +64,6 @@ func main() {
 	}
 
 	targetURLs = sanitizeURLs(targetURLs)
-
 	mux := http.NewServeMux()
 
 	cache := NewCache()
