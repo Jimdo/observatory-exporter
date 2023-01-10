@@ -11,10 +11,9 @@ import (
 	"sync"
 	"time"
 
-	"log"
-
 	"github.com/mozilla/tls-observatory/certificate"
 	"github.com/mozilla/tls-observatory/database"
+	"go.uber.org/zap"
 )
 
 type scan struct {
@@ -121,19 +120,17 @@ func (c *Collector) getResult(targetURL string, scanid int64) (*database.Scan, e
 			return &res, errors.New(http.StatusText(resp.StatusCode))
 		}
 
-		buf, _ := ioutil.ReadAll(resp.Body)
-		err = json.Unmarshal(buf, &res)
-
+		err = json.NewDecoder(resp.Body).Decode(&res)
 		if err != nil {
 			return &res, err
 		}
 
 		if res.Complperc < 100 {
 			if time.Now().After(endtime) {
-				return nil, fmt.Errorf("Failed to retrieve results in time for %s", targetURL)
+				return nil, fmt.Errorf("failed to retrieve results in time for %s", targetURL)
 			}
 
-			fmt.Print(".")
+			zap.L().Debug("waiting for result")
 			time.Sleep(time.Second * 1)
 			continue
 		}
@@ -154,7 +151,7 @@ func (c *Collector) getCertificate(targetURL string, certid int64) (*certificate
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Failed to access certificate. HTTP %d: %s", resp.StatusCode, targetURL)
+		return nil, fmt.Errorf("failed to access certificate. HTTP %d: %s", resp.StatusCode, targetURL)
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
@@ -184,7 +181,7 @@ func exportMetrics(scan *database.Scan, cert *certificate.Certificate) (res Metr
 				var d mozillaEvalData
 				err := json.Unmarshal(a.Result, &d)
 				if err != nil {
-					log.Printf("Failed to unmarshal analyzer 'mozillaEvaluationWorker': %s", err)
+					zap.L().Error("Failed to unmarshal analyzer 'mozillaEvaluationWorker'", zap.Error(err))
 					continue
 				}
 				res["compatibility_level"] = levelToInt(d.Level)
@@ -193,7 +190,7 @@ func exportMetrics(scan *database.Scan, cert *certificate.Certificate) (res Metr
 				var d mozillaGradeData
 				err := json.Unmarshal(a.Result, &d)
 				if err != nil {
-					log.Printf("Failed to unmarshal analyzer 'mozillaGradingWorker': %s", err)
+					zap.L().Error("Failed to unmarshal analyzer 'mozillaGradingWorker'", zap.Error(err))
 					continue
 				}
 				res["score"] = float64(d.Score)

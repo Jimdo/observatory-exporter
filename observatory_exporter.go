@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,6 +14,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type Metrics map[string]float64
@@ -39,7 +40,21 @@ func init() {
 	prometheus.MustRegister(version.NewCollector("observatory_exporter"))
 }
 
+func setupLogger() {
+	config := zap.NewProductionConfig()
+	config.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
+	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	if logger, err := config.Build(); err != nil {
+		fmt.Printf("unable to setup zap logger %s\n", err)
+		os.Exit(1)
+	} else {
+		zap.ReplaceGlobals(logger)
+	}
+}
+
 func main() {
+	setupLogger()
+
 	var (
 		listenAddr  = flag.String("web.listen-address", ":9229", "The address to listen on for HTTP requests.")
 		showVersion = flag.Bool("version", false, "Print version information")
@@ -55,12 +70,12 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Fprintln(os.Stdout, version.Print("observatory_exporter"))
+		zap.L().Info(version.Print("observatory_exporter"))
 		os.Exit(0)
 	}
 
 	if len(targetURLs) == 0 {
-		log.Fatalf("No target url set.")
+		zap.L().Fatal("No target url set")
 	}
 
 	targetURLs = sanitizeURLs(targetURLs)
@@ -92,9 +107,9 @@ func main() {
 
 					if err == nil {
 						cache.Write(targetURL, result)
-						log.Printf("Updated result for %s", targetURL)
+						zap.L().Info("Updated result", zap.String("targetURL", targetURL))
 					} else {
-						log.Printf("Failed to get result for %s: %s", targetURL, err)
+						zap.L().Error("Failed to update result", zap.String("targetURL", targetURL), zap.Error(err))
 					}
 				}(targetURL)
 			}
@@ -131,8 +146,7 @@ func registerSignals() {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
-		log.Print("Received SIGTERM, exiting...")
-		os.Exit(1)
+		zap.L().Fatal("Received SIGTERM, exiting...")
 	}()
 }
 

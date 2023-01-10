@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
 	"sort"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"go.uber.org/zap"
 )
 
 const (
@@ -40,7 +40,7 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
-	log.Print("Exporting result.")
+	zap.L().Info("Exporting result.")
 
 	data := e.cache.ReadAll()
 
